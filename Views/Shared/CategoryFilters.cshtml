@@ -1,0 +1,66 @@
+﻿@model SitefinityWebApp.Areas.Products.Models.CategoryFilterModel
+
+
+
+<div class="facets-intersection-element-start"></div>
+<div class="filters-menu_filters filters-menu_section js-filter-category-parent">
+    <h3 role="button" class="false">
+        Filters
+        <span class="edmo-icon edmo-icon-chevronDown undefined">
+            <svg role="img" aria-hidden="true" focusable="false">
+                <use xlink:href="/ResourcePackages/Edmo/assets/dist/sprites/symbol-defs.svg#icon-chevron-down1"></use>
+            </svg>
+        </span>
+    </h3>
+    <section class="filters-menu_filters-items">
+        @foreach (var item in Model.FilterItems.GroupBy(p => new { ParentId = p.ParentId, GroupTitle = p.GroupTitle }))
+        {
+            <div>
+                <h4 class="body medium false js-filter-parent" role="button">
+
+                    @item.Key.GroupTitle <span class="edmo-icon edmo-icon-chevronDown undefined">
+                        <svg role="img" aria-hidden="true" focusable="false">
+                            <use xlink:href="/ResourcePackages/Edmo/assets/dist/sprites/symbol-defs.svg#icon-chevron-down"></use>
+                        </svg>
+                    </span>
+                </h4>
+                <ul class="false js-filter-child" style="display:none;">
+                    @{
+                        var filters = Model.FilterItems.Where(p => p.ParentId == item.Key.ParentId).OrderBy(p => p.Rank).ThenBy(p => p.Filter).ToList();
+                    }
+                    @foreach (var filter in filters)
+                    {
+
+                        <li class="checkbox">
+                            <input type="checkbox" style="display: none;" aria-checked="false" id="@filter.FilterId" class="js-filters" onclick="onClickFunction('@filter.FilterId')" />
+                            <label class="atag" for="@filter.FilterId">
+                                <span role="checkbox" aria-checked="false" id="span_@filter.FilterId">
+                                    <span class="edmo-icon edmo-icon-square false">
+                                        <svg aria-hidden="false" focusable="false" data-prefix="fal" data-icon="square" class="svg-inline--fa fa-square fa-w-14 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" aria-label="checkbox">
+                                            <path fill="currentColor" d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48zm16 400c0 8.8-7.2 16-16 16H48c-8.8 0-16-7.2-16-16V80c0-8.8 7.2-16 16-16h352c8.8 0 16 7.2 16 16v352z"></path>
+                                        </svg>
+                                    </span>
+                                    <span class="edmo-icon edmo-icon-checkbox hide">
+                                        <svg aria-hidden="false" focusable="false" data-prefix="fas" data-icon="check-square" class="svg-inline--fa fa-check-square fa-w-14 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" aria-label="checkbox checked">
+                                            <path fill="currentColor" d="M400 480H48c-26.51 0-48-21.49-48-48V80c0-26.51 21.49-48 48-48h352c26.51 0 48 21.49 48 48v352c0 26.51-21.49 48-48 48zm-204.686-98.059l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.248-16.379-6.249-22.628 0L184 302.745l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.25 16.379 6.25 22.628.001z"></path>
+                                        </svg>
+                                    </span>
+                                </span>
+                                <span class="facet-title">@filter.Filter</span>&nbsp;<span class="item-count">(@filter.Products)</span>
+                            </label>
+                        </li>
+
+                    }
+                </ul>
+            </div>
+        }
+        @*End Filter menu item*@
+
+        <!-- Appears after something is selected -->
+        <a class="clear-filters-link alt btn btn-primary small hide" href="javascript:void(0)">Remove Filters ×</a>
+
+    </section>
+</div>
+<div class="facets-intersection-element-end"></div>
+
+

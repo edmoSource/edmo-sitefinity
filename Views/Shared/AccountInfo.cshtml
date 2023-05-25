@@ -1,0 +1,76 @@
+﻿@using Telerik.Sitefinity.Frontend.Mvc.Helpers;
+@using SitefinityWebApp.Areas.Users.Models;
+
+@model AccountInfoModel
+
+
+@{
+    bool LoggedIn = false;
+    if (User.Identity.IsAuthenticated)
+    {
+        LoggedIn = true;
+    }
+}
+ 
+    <div class="user-menu">
+
+        <div class="nav-items">
+
+            @if (LoggedIn)
+            {
+                <div class="user-menu_active-items">
+                    <a class="cart" href="/cart">
+                        <span class="cart-icon btn-icon-wrapper has-quantity">
+                            <span class="cart-icon_quantity-in-cart">@Model.CartItems</span>
+                            <span class="edmo-icon edmo-icon-cartPlus undefined">
+                                <svg aria-hidden="false" focusable="false" data-prefix="fal" data-icon="cart-plus" class="svg-inline--fa fa-cart-plus fa-w-18 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" aria-label="View Cart"><path fill="currentColor" d="M551.991 64H129.28l-8.329-44.423C118.822 8.226 108.911 0 97.362 0H12C5.373 0 0 5.373 0 12v8c0 6.627 5.373 12 12 12h78.72l69.927 372.946C150.305 416.314 144 431.42 144 448c0 35.346 28.654 64 64 64s64-28.654 64-64a63.681 63.681 0 0 0-8.583-32h145.167a63.681 63.681 0 0 0-8.583 32c0 35.346 28.654 64 64 64 35.346 0 64-28.654 64-64 0-17.993-7.435-34.24-19.388-45.868C506.022 391.891 496.76 384 485.328 384H189.28l-12-64h331.381c11.368 0 21.177-7.976 23.496-19.105l43.331-208C578.592 77.991 567.215 64 551.991 64zM464 416c17.645 0 32 14.355 32 32s-14.355 32-32 32-32-14.355-32-32 14.355-32 32-32zm-256 0c17.645 0 32 14.355 32 32s-14.355 32-32 32-32-14.355-32-32 14.355-32 32-32zm294.156-128H171.28l-36-192h406.876l-40 192zM272 196v-8c0-6.627 5.373-12 12-12h36v-36c0-6.627 5.373-12 12-12h8c6.627 0 12 5.373 12 12v36h36c6.627 0 12 5.373 12 12v8c0 6.627-5.373 12-12 12h-36v36c0 6.627-5.373 12-12 12h-8c-6.627 0-12-5.373-12-12v-36h-36c-6.627 0-12-5.373-12-12z"></path></svg>
+                            </span>
+                        </span>
+                    </a>
+                    <div class="dropdown with-icon">
+                        <button class="dropdown-label dropdown-toggle" type="button" id="myAccountLinks" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="edmo-icon edmo-icon-userActive undefined"><svg aria-hidden="false" focusable="false" data-prefix="fas" data-icon="user-circle" class="svg-inline--fa fa-user-circle fa-w-16 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" aria-label="Log In"><path fill="currentColor" d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm0 96c48.6 0 88 39.4 88 88s-39.4 88-88 88-88-39.4-88-88 39.4-88 88-88zm0 344c-58.7 0-111.3-26.6-146.5-68.2 18.8-35.4 55.6-59.8 98.5-59.8 2.4 0 4.8.4 7.1 1.1 13 4.2 26.6 6.9 40.9 6.9 14.3 0 28-2.7 40.9-6.9 2.3-.7 4.7-1.1 7.1-1.1 42.9 0 79.7 24.4 98.5 59.8C359.3 421.4 306.7 448 248 448z"></path></svg></span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end dropdown-list" aria-labelledby="myAccountLinks">
+                            <div class="dropdown-item">
+                                <p class="user-menu_identity">
+                                    <span class="label">User: </span>@Model.Email
+                                </p>
+                                <div class="dropdown-item">
+                                    <a href="/account">My Account</a>
+                                </div>
+                                <div class="dropdown-item">
+                                    <a href="/account/company">My Company</a>
+                                </div>
+                                <div class="dropdown-item">
+                                    <a href="/account/orders/history">My Orders</a>
+                                </div>
+                                <div class="dropdown-item">
+                                    <a href="/cart#savedItems">My Saved Items</a>
+                                </div>
+                         
+                                <a href="/Sitefinity/SignOut?sts_signout=true&redirect_uri=" class="dropdown-item">Log Out</a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            }
+            else
+            {
+                <button class="login-button" data-bs-target="#LoginModalToggle" data-bs-toggle="modal" data-bs-dismiss="modal" type="button"><span class="edmo-icon edmo-icon-user undefined"><svg aria-hidden="false" focusable="false" data-prefix="fal" data-icon="user-circle" class="svg-inline--fa fa-user-circle fa-w-16 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" aria-label="Log In"><path fill="currentColor" d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm128 421.6c-35.9 26.5-80.1 42.4-128 42.4s-92.1-15.9-128-42.4V416c0-35.3 28.7-64 64-64 11.1 0 27.5 11.4 64 11.4 36.6 0 52.8-11.4 64-11.4 35.3 0 64 28.7 64 64v13.6zm30.6-27.5c-6.8-46.4-46.3-82.1-94.6-82.1-20.5 0-30.4 11.4-64 11.4S204.6 320 184 320c-48.3 0-87.8 35.7-94.6 82.1C53.9 363.6 32 312.4 32 256c0-119.1 96.9-216 216-216s216 96.9 216 216c0 56.4-21.9 107.6-57.4 146.1zM248 120c-48.6 0-88 39.4-88 88s39.4 88 88 88 88-39.4 88-88-39.4-88-88-88zm0 144c-30.9 0-56-25.1-56-56s25.1-56 56-56 56 25.1 56 56-25.1 56-56 56z"></path></svg></span> Log In</button>
+            }
+        </div>
+    </div>
+ 
+
+@*<script language="JavaScript">
+    $(function () {
+        LoadCompanyDetailsHeader();
+    });
+
+    function LoadCompanyDetailsHeader() {
+        $("#company_details_header").load("/rest-api/company-details-header H1 span", function () {
+        });
+    }
+</script>*@

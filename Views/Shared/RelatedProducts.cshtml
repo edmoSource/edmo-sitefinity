@@ -1,0 +1,200 @@
+﻿@model SitefinityWebApp.Areas.Products.Models.ProductResultsViewModel
+@using Newtonsoft.Json
+@using SitefinityWebApp.Areas.EdmoApi.Models
+
+@{
+    var uniqueId = Guid.NewGuid();
+}
+
+<section class="featured-products">
+    <header class="line line-gray container">
+        <h2 class="smoke_gray h1">RELATED PRODUCTS</h2>
+        <div class="btn-pagination-container"></div>
+    </header>
+    <section class="product-list product-list_carousel product-list-4-up container">
+        <div id="sslider-featured-products-@uniqueId" class="product-list-grid ">
+            @foreach (var item in Model.Products)
+            {
+                EdmoProductUpdateResponse.Part part = new EdmoProductUpdateResponse.Part();
+                if (item.PartJson != null)
+                {
+                    part = JsonConvert.DeserializeObject<EdmoProductUpdateResponse.Part>(item.PartJson);
+                }
+                <article class="product-card false product-card_stacked js-list-for-stock" data-list-for-stock="@item.EdmoId">
+                    <a class="product-card-image-link" href="/product/@item.EdmoId/@item.UrlName">
+                        <div class="image-wrapper loaded undefined" style="background-image: url(&quot;&quot;); width: 100%; height: 100%;">
+                            <img src="@item.ImagePath" srcset="" alt="@item.AltText">
+                        </div>
+                    </a>
+                    <div class="product-text">
+                        <a href="/product/@item.EdmoId/@item.UrlName">
+                            <h3 class="h5 false" title="@item.Title">
+                                @item.Title
+                            </h3>
+                        </a>
+                        <h4 class="h4 light_gray_6 product-brand">@part.brand</h4>
+
+                        @Html.Partial("Stock", item.EdmoId)
+
+                        <div class="product-numbers">
+                            <p><span>EDMO#:&nbsp;</span> @item.EdmoId</p>
+                            <p><span>MFR#:&nbsp;</span> @part.mfrPartNo</p>
+                        </div>
+                        <!--HOW ARE WE DEALING WITH PRICING-->
+                        <div class="product-price">
+                            <div class="h4 smoke_gray">
+                                <span id="price-@item.EdmoId" data-list-price="@if (part != null) {<text>@part.retailPrice</text> }">Call for Pricing</span>
+                                @if (part != null && part.isHazardous)
+                                {
+                                    <div class="edmo-tooltip tooltip-warning">
+                                        <button type="button" class="" data-bs-toggle="tooltip" data-bs-placement="top" title="Hazmat charges may apply.">
+                                            <span class="edmo-icon edmo-icon-hazmat undefined">
+                                                <svg role="img" aria-hidden="true" focusable="false">
+                                                    <use xlink:href="/ResourcePackages/Edmo/assets/dist/sprites/symbol-defs.svg#icon-exclamation-triangle"></use>
+                                                </svg>
+                                            </span>
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="btn-row expanding-labels">
+                        <a class="btn icon-btn  toggle-label  btn-gold icon-r btn-ghost small active" href="/product/@item.EdmoId/@item.UrlName" style="min-width: calc(2.5rem + 82.3594px);">
+                            <span class="btn-icon-wrapper">
+                                <span class="edmo-icon edmo-icon-arrowRight undefined">
+                                    <svg aria-hidden="false" focusable="false" data-prefix="fal" data-icon="arrow-right" class="svg-inline--fa fa-arrow-right fa-w-14 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" aria-label="View Details">
+                                        <path fill="currentColor" d="M216.464 36.465l-7.071 7.07c-4.686 4.686-4.686 12.284 0 16.971L387.887 239H12c-6.627 0-12 5.373-12 12v10c0 6.627 5.373 12 12 12h375.887L209.393 451.494c-4.686 4.686-4.686 12.284 0 16.971l7.071 7.07c4.686 4.686 12.284 4.686 16.97 0l211.051-211.05c4.686-4.686 4.686-12.284 0-16.971L233.434 36.465c-4.686-4.687-12.284-4.687-16.97 0z"></path>
+                                    </svg>
+                                </span>
+                            </span><span class="btn-label">View Details</span>
+                        </a>
+                        <div id="js-show-if-price-@item.EdmoId" style="display:none;">
+                            <button class="btn icon-btn toggle-label btn-add-to-cart btn-primary false small js-is-not-cart" data-id="@item.Id"
+                                    type="button" style="min-width: 2.5rem; @if (item.CartQuantity>0) { <text>display:none;</text> }" onclick="AddRelatedToCart('@item.Id')">
+                                <span class="cart-icon btn-icon-wrapper null">
+                                    <span class="edmo-icon edmo-icon-cartPlus undefined">
+                                        <svg aria-hidden="false" focusable="false" data-prefix="fal" data-icon="cart-plus" class="svg-inline--fa fa-cart-plus fa-w-18 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" aria-label="Add 1EA">
+                                            <path fill="currentColor" d="M551.991 64H129.28l-8.329-44.423C118.822 8.226 108.911 0 97.362 0H12C5.373 0 0 5.373 0 12v8c0 6.627 5.373 12 12 12h78.72l69.927 372.946C150.305 416.314 144 431.42 144 448c0 35.346 28.654 64 64 64s64-28.654 64-64a63.681 63.681 0 0 0-8.583-32h145.167a63.681 63.681 0 0 0-8.583 32c0 35.346 28.654 64 64 64 35.346 0 64-28.654 64-64 0-17.993-7.435-34.24-19.388-45.868C506.022 391.891 496.76 384 485.328 384H189.28l-12-64h331.381c11.368 0 21.177-7.976 23.496-19.105l43.331-208C578.592 77.991 567.215 64 551.991 64zM464 416c17.645 0 32 14.355 32 32s-14.355 32-32 32-32-14.355-32-32 14.355-32 32-32zm-256 0c17.645 0 32 14.355 32 32s-14.355 32-32 32-32-14.355-32-32 14.355-32 32-32zm294.156-128H171.28l-36-192h406.876l-40 192zM272 196v-8c0-6.627 5.373-12 12-12h36v-36c0-6.627 5.373-12 12-12h8c6.627 0 12 5.373 12 12v36h36c6.627 0 12 5.373 12 12v8c0 6.627-5.373 12-12 12h-36v36c0 6.627-5.373 12-12 12h-8c-6.627 0-12-5.373-12-12v-36h-36c-6.627 0-12-5.373-12-12z"></path>
+                                        </svg>
+                                    </span>
+                                </span>
+                                <span class="btn-label">Add 1EA</span>
+                            </button>
+                            <button class="btn icon-btn toggle-label btn-add-to-cart btn-primary-solid false small js-is-cart" data-id="@item.Id"
+                                    type="button" style="min-width: 2.5rem; @if (item.CartQuantity==0) { <text>display:none;</text> }" onclick="AddMoreRelatedToCart('@item.Id')">
+                                <span class="cart-icon btn-icon-wrapper has-quantity">
+                                    <p class="cart-icon_quantity-in-cart" data-id="@item.Id">@item.CartQuantity</p>
+                                    <span class="edmo-icon edmo-icon-cartPlus undefined">
+                                        <svg aria-hidden="false" focusable="false" data-prefix="fal" data-icon="cart-plus" class="svg-inline--fa fa-cart-plus fa-w-18 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" aria-label="Add 1EA More"><path fill="currentColor" d="M551.991 64H129.28l-8.329-44.423C118.822 8.226 108.911 0 97.362 0H12C5.373 0 0 5.373 0 12v8c0 6.627 5.373 12 12 12h78.72l69.927 372.946C150.305 416.314 144 431.42 144 448c0 35.346 28.654 64 64 64s64-28.654 64-64a63.681 63.681 0 0 0-8.583-32h145.167a63.681 63.681 0 0 0-8.583 32c0 35.346 28.654 64 64 64 35.346 0 64-28.654 64-64 0-17.993-7.435-34.24-19.388-45.868C506.022 391.891 496.76 384 485.328 384H189.28l-12-64h331.381c11.368 0 21.177-7.976 23.496-19.105l43.331-208C578.592 77.991 567.215 64 551.991 64zM464 416c17.645 0 32 14.355 32 32s-14.355 32-32 32-32-14.355-32-32 14.355-32 32-32zm-256 0c17.645 0 32 14.355 32 32s-14.355 32-32 32-32-14.355-32-32 14.355-32 32-32zm294.156-128H171.28l-36-192h406.876l-40 192zM272 196v-8c0-6.627 5.373-12 12-12h36v-36c0-6.627 5.373-12 12-12h8c6.627 0 12 5.373 12 12v36h36c6.627 0 12 5.373 12 12v8c0 6.627-5.373 12-12 12h-36v36c0 6.627-5.373 12-12 12h-8c-6.627 0-12-5.373-12-12v-36h-36c-6.627 0-12-5.373-12-12z"></path></svg>
+                                    </span>
+                                </span>
+                                <span class="btn-label">Add 1EA More</span>
+                            </button>
+                        </div>
+                    </div>
+                    <button class="favorite-button js-is-not-favorite" type="button" data-id="@item.Id" onclick="AddToFavorites('@item.Id')" @if (item.IsFavorite) { <text> style="display:none;" </text> }>
+                        <span class="contents-wrapper">
+                            <span class="edmo-icon edmo-icon-heart edmo-icon-bookmark">
+                                <svg role="img" aria-hidden="true" focusable="false">
+                                    <title>Save for Later</title>
+                                    <use xlink:href="/ResourcePackages/Edmo/assets/dist/sprites/symbol-defs.svg#icon-bookmark"></use>
+                                </svg>
+                            </span>
+                        </span>
+                    </button>
+                    <button class="favorite-button js-is-favorite" type="button" data-id="@item.Id" onclick="RemoveFromFavorites('@item.Id')" @if (!item.IsFavorite) { <text> style="display:none;" </text> }>
+                        <span class="contents-wrapper">
+                            <span class="edmo-icon edmo-icon-heart edmo-icon-remove-bookmark">
+                                <svg role="img" aria-hidden="true" focusable="false">
+                                    <title>Remove from Saved for Later</title>
+                                    <use xlink:href="/ResourcePackages/Edmo/assets/dist/sprites/symbol-defs.svg#icon-bookmark1"></use>
+                                </svg>
+                            </span>
+                        </span>
+                    </button>
+                </article>
+            }
+        </div>
+    </section>
+</section>
+
+<script>
+    $(function () {
+        //For Featured Products
+        $('#sslider-featured-products-@uniqueId').slick({
+            autoplay: false,
+            slidesToShow: 4,
+            slidesToScroll: 1,
+            asNavFor: '#sslider-product-image',
+            dots: false,
+            arrows: true,
+            appendArrows: '.featured-products .btn-pagination-container',
+            prevArrow: '<button type="button" class="btn-pagination"><span class="edmo-icon edmo-icon-arrowSquareLeft undefined"><svg aria-hidden="false" focusable="false" data-prefix="fal" data-icon="arrow-square-left" class="svg-inline--fa fa-arrow-square-left fa-w-14 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" aria-label="Previous"><path fill="currentColor" d="M211.5 379.5l-115.1-115c-4.7-4.7-4.7-12.3 0-17l115.1-115c4.7-4.7 12.3-4.7 17 0l6.9 6.9c4.7 4.7 4.7 12.5-.2 17.1L149.7 239H340c6.6 0 12 5.4 12 12v10c0 6.6-5.4 12-12 12H149.7l85.6 82.5c4.8 4.7 4.9 12.4.2 17.1l-6.9 6.9c-4.8 4.7-12.4 4.7-17.1 0zM400 480H48c-26.5 0-48-21.5-48-48V80c0-26.5 21.5-48 48-48h352c26.5 0 48 21.5 48 48v352c0 26.5-21.5 48-48 48zm0-32c8.8 0 16-7.2 16-16V80c0-8.8-7.2-16-16-16H48c-8.8 0-16 7.2-16 16v352c0 8.8 7.2 16 16 16h352z"></path></svg></span></button>',
+            nextArrow: '<button type="button" class="btn-pagination"><span class="edmo-icon edmo-icon-arrowSquareRight undefined"><svg aria-hidden="false" focusable="false" data-prefix="fal" data-icon="arrow-square-right" class="svg-inline--fa fa-arrow-square-right fa-w-14 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" aria-label="Next"><path fill="currentColor" d="M236.5 132.5l115.1 115c4.7 4.7 4.7 12.3 0 17l-115.1 115c-4.7 4.7-12.3 4.7-17 0l-6.9-6.9c-4.7-4.7-4.7-12.5.2-17.1l85.6-82.5H108c-6.6 0-12-5.4-12-12v-10c0-6.6 5.4-12 12-12h190.3l-85.6-82.5c-4.8-4.7-4.9-12.4-.2-17.1l6.9-6.9c4.8-4.7 12.4-4.7 17.1 0zM48 32h352c26.5 0 48 21.5 48 48v352c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V80c0-26.5 21.5-48 48-48zm0 32c-8.8 0-16 7.2-16 16v352c0 8.8 7.2 16 16 16h352c8.8 0 16-7.2 16-16V80c0-8.8-7.2-16-16-16H48z"></path></svg></span></button>',
+            responsive: [
+                {
+                    breakpoint: 1200,
+                    settings: {
+                        arrows: false,
+                        slidesToShow: 3
+                    }
+                },
+                {
+                    breakpoint: 992,
+                    settings: {
+                        arrows: false,
+                        slidesToShow: 2
+                    }
+                },
+                {
+                    breakpoint: 768,
+                    settings: {
+                        arrows: false,
+                        slidesToShow: 1
+                    }
+                }
+            ]
+        });
+
+        var partNumbers = [];
+        $(".js-list-for-stock").each(function () {
+            partNumbers.push($(this).data("list-for-stock"));
+        })
+
+        var str = new StockAndPrice();
+        str.GetRelatedPriceAndStock(partNumbers);
+    })
+
+    function AddRelatedToFavorites(id) {
+        $(".js-is-not-favorite[data-id='" + id + "']").hide();
+        $(".js-is-favorite[data-id='" + id + "']").show();
+        $.ajax({
+            type: "POST",
+            url: "/rest-api/update-favorite",
+            data: { productId: id, add: true },
+            dataType: "json"
+        });
+    }
+
+    function AddRelatedToCart(id) {
+        $(".js-is-not-cart[data-id='" + id + "']").hide();
+        $(".js-is-cart[data-id='" + id + "']").show();
+        AddMoreRelatedToCart(id);
+    }
+
+    function AddMoreRelatedToCart(id) {
+        var qty = $(".cart-icon_quantity-in-cart[data-id='" + id + "']").text() * 1;
+        qty++;
+        $(".cart-icon_quantity-in-cart[data-id='" + id + "']").text(qty);
+        $.ajax({
+            type: "POST",
+            url: "/rest-api/update-cart",
+            data: { productId: id, quantity: qty },
+            dataType: "json",
+            success: function () {
+                LoadAccountInfo();
+            }
+        });
+    }
+</script>

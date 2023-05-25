@@ -1,0 +1,364 @@
+﻿@model SitefinityWebApp.Areas.Products.Models.ProductResultsViewModel
+@using Newtonsoft.Json;
+@using SitefinityWebApp.Areas.EdmoApi.Models;
+@using SitefinityWebApp.Utilities;
+@{
+    List<SelectListItem> page = new List<SelectListItem>();
+    page.Add(new SelectListItem { Value = "12", Text = "12" });
+    page.Add(new SelectListItem { Value = "24", Text = "24" });
+    page.Add(new SelectListItem { Value = "36", Text = "36" });
+    page.Add(new SelectListItem { Value = "48", Text = "48" });
+}
+<header>
+    <h1 class="smoke_gray h3 catalog_title all-caps">@Html.Raw(Model.Title)</h1>
+    <div class="layout-buttons">
+        <form id="pg_form">
+            <div class="input input-select input-required input-select_align-bottom" role="combobox" aria-expanded="false" aria-haspopup="listbox" aria-labelledby="option-input-number-of-results-label">
+                <label for="option-input-number-of-results-input" id="option-input-number-of-results-label">Show:</label>
+                @Html.EdmoSelectBoxFor(m => m.PageNumber, "GetResultsWithPageSize('" + Model.PageNumber + "')", "", "", "", page)
+            </div>
+        </form>
+        <button class="btn icon-btn hide-label btn btn-icon small active btn-toggle-product-view js-grid-view" type="button" style="min-width: 2.5rem;">
+            <span class="btn-icon-wrapper">
+                <span class="edmo-icon edmo-icon-grid undefined">
+                    <svg aria-hidden="false" focusable="false" data-prefix="fal" data-icon="th-large" class="svg-inline--fa fa-th-large fa-w-16 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" aria-label="View Products in Grid"><path fill="currentColor" d="M0 80v352c0 26.51 21.49 48 48 48h416c26.51 0 48-21.49 48-48V80c0-26.51-21.49-48-48-48H48C21.49 32 0 53.49 0 80zm240-16v176H32V80c0-8.837 7.163-16 16-16h192zM32 432V272h208v176H48c-8.837 0-16-7.163-16-16zm240 16V272h208v160c0 8.837-7.163 16-16 16H272zm208-208H272V64h192c8.837 0 16 7.163 16 16v160z"></path></svg>
+                </span>
+            </span>
+            <span class="btn-label">View Products in Grid</span>
+        </button>
+        <button class="btn icon-btn hide-label btn btn-icon small false btn-toggle-product-view js-list-view" type="button" style="min-width: 2.5rem;">
+            <span class="btn-icon-wrapper">
+                <span class="edmo-icon edmo-icon-list undefined">
+                    <svg aria-hidden="false" focusable="false" data-prefix="fal" data-icon="list" class="svg-inline--fa fa-list fa-w-16 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" aria-label="View Products in List"><path fill="currentColor" d="M88 56H40a16 16 0 0 0-16 16v48a16 16 0 0 0 16 16h48a16 16 0 0 0 16-16V72a16 16 0 0 0-16-16zm0 160H40a16 16 0 0 0-16 16v48a16 16 0 0 0 16 16h48a16 16 0 0 0 16-16v-48a16 16 0 0 0-16-16zm0 160H40a16 16 0 0 0-16 16v48a16 16 0 0 0 16 16h48a16 16 0 0 0 16-16v-48a16 16 0 0 0-16-16zm416 24H168a8 8 0 0 0-8 8v16a8 8 0 0 0 8 8h336a8 8 0 0 0 8-8v-16a8 8 0 0 0-8-8zm0-320H168a8 8 0 0 0-8 8v16a8 8 0 0 0 8 8h336a8 8 0 0 0 8-8V88a8 8 0 0 0-8-8zm0 160H168a8 8 0 0 0-8 8v16a8 8 0 0 0 8 8h336a8 8 0 0 0 8-8v-16a8 8 0 0 0-8-8z"></path></svg>
+                </span>
+            </span>
+            <span class="btn-label">View Products in List</span>
+        </button>
+    </div>
+</header>
+<button id="btnBackToTop" class="btn icon-btn btn-primary toggle-label catalog_list_back-to-top small " type="button">
+    <span class="btn-icon-wrapper">
+        <span class="edmo-icon edmo-icon-toTop undefined">
+            <svg aria-hidden="false" focusable="false" data-prefix="fal" data-icon="arrow-to-top" class="svg-inline--fa fa-arrow-to-top fa-w-12 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" aria-label="Back to Top"><path fill="currentColor" d="M35.5 248l148-148.5c4.7-4.7 12.3-4.7 17 0l148 148.5c4.7 4.7 4.7 12.3 0 17l-7.1 7.1c-4.7 4.7-12.3 4.7-17 0L209 156.1V468c0 6.6-5.4 12-12 12h-10c-6.6 0-12-5.4-12-12V156.1L59.6 272c-4.7 4.7-12.3 4.7-17 0l-7.1-7.1c-4.7-4.6-4.7-12.2 0-16.9zM0 44v8c0 6.6 5.4 12 12 12h360c6.6 0 12-5.4 12-12v-8c0-6.6-5.4-12-12-12H12C5.4 32 0 37.4 0 44z"></path></svg>
+        </span>
+    </span>
+    <span class="btn-label">Back to Top</span>
+</button>
+
+<section class="product-list undefined product-list_stacked" style="">
+    <div class="product-list-grid">
+        @if (Model.Products != null)
+        {
+            foreach (var item in Model.Products)
+            {
+                EdmoProductUpdateResponse.Part part = new EdmoProductUpdateResponse.Part();
+                if (item.PartJson != null)
+                {
+                    part = JsonConvert.DeserializeObject<EdmoProductUpdateResponse.Part>(item.PartJson);
+                }
+                <article class="product-card false product-card_stacked js-list-for-stock" data-list-for-stock="@item.EdmoId">
+                    <a class="product-card-image-link" href="/product/@item.EdmoId/@item.UrlName">
+                        <div class="image-wrapper loaded undefined" style="background-image: url(&quot;&quot;); width: 100%; height: 100%;">
+                            <img src="@item.ImagePath" srcset="" alt="@item.AltText">
+                        </div>
+                        <div class="loader undefined enable-background false loading" aria-label="Loading">
+                            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 100 100"><path class="loader_circle" d="M18.1,50h-3c0-19.2,15.6-34.9,34.9-34.9v3C32.4,18.1,18.1,32.4,18.1,50z"><animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="1s" repeatCount="indefinite"></animateTransform></path><g><g><polygon class="loader_airplane" points="37.9,65.3 57,68.7 57.7,64.5 49.1,57.5 38.6,61.2"></polygon><polygon class="loader_airplane" points="32.9,51.9 50.6,47.2 65.6,57.1 69.5,54.4 54.5,25.1 30.5,48.1"></polygon><polygon class="loader_airplane" points="55.8,10.3 41.6,89.4 43.9,89.7 58.2,10.6"></polygon></g></g></svg>
+                        </div>
+                    </a>
+                    <div class="product-text">
+                        <a href="/product/@item.EdmoId/@item.UrlName">
+                            <h3 class="h5 false" title="@item.Title">
+                                @item.Title
+                            </h3>
+                        </a>
+                        <h4 class="h4 light_gray_6 product-brand">@part.brand</h4>
+
+                        @Html.Partial("Stock", item.EdmoId)
+
+                        <div class="product-numbers">
+                            <p><span>EDMO#:&nbsp;</span> @item.EdmoId</p>
+                            <p><span>MFR#:&nbsp;</span> @part.mfrPartNo</p>
+                        </div>
+                        <!--HOW ARE WE DEALING WITH PRICING-->
+                        <div class="product-price">
+                            <div class="h4 smoke_gray">
+                                <span id="price-@item.EdmoId" data-list-price="@if (part != null) {<text>@part.retailPrice</text> }">Call for Pricing</span>
+                                @if (part != null && part.isHazardous)
+                                {
+                                    <div class="edmo-tooltip tooltip-warning">
+                                        <button type="button" class="" data-bs-toggle="tooltip" data-bs-placement="top" title="Hazmat charges may apply.">
+                                            <span class="edmo-icon edmo-icon-hazmat undefined">
+                                                <svg role="img" aria-hidden="true" focusable="false">
+                                                    <use xlink:href="/ResourcePackages/Edmo/assets/dist/sprites/symbol-defs.svg#icon-exclamation-triangle"></use>
+                                                </svg>
+                                            </span>
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="btn-row expanding-labels">
+                        <a class="btn icon-btn  toggle-label  btn-gold icon-r btn-ghost small active" href="/product/@item.EdmoId/@item.UrlName" style="min-width: calc(2.5rem + 82.3594px);">
+                            <span class="btn-icon-wrapper">
+                                <span class="edmo-icon edmo-icon-arrowRight undefined">
+                                    <svg aria-hidden="false" focusable="false" data-prefix="fal" data-icon="arrow-right" class="svg-inline--fa fa-arrow-right fa-w-14 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" aria-label="View Details">
+                                        <path fill="currentColor" d="M216.464 36.465l-7.071 7.07c-4.686 4.686-4.686 12.284 0 16.971L387.887 239H12c-6.627 0-12 5.373-12 12v10c0 6.627 5.373 12 12 12h375.887L209.393 451.494c-4.686 4.686-4.686 12.284 0 16.971l7.071 7.07c4.686 4.686 12.284 4.686 16.97 0l211.051-211.05c4.686-4.686 4.686-12.284 0-16.971L233.434 36.465c-4.686-4.687-12.284-4.687-16.97 0z"></path>
+                                    </svg>
+                                </span>
+                            </span><span class="btn-label">View Details</span>
+                        </a>
+                        <div id="js-show-if-price-@item.EdmoId" style="display:none;">
+                            @if (string.Equals(item.EdmoId.ToUpper(), "REPROGRAM"))
+                            {
+                                <button class="btn icon-btn toggle-label btn-add-to-cart btn-primary-solid false small js-is-cart" data-id="@item.Id"
+                                        type="button" style="min-width: 2.5rem; @if (item.CartQuantity == 0) { <text>display:none;</text> }" disabled>
+                                    <span class="cart-icon btn-icon-wrapper has-quantity">
+                                        <p class="cart-icon_quantity-in-cart" data-id="@item.Id">1</p>
+                                        <span class="edmo-icon edmo-icon-cartPlus undefined">
+                                            <svg aria-hidden="false" focusable="false" data-prefix="fal" data-icon="cart-plus" class="svg-inline--fa fa-cart-plus fa-w-18 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" aria-label="Add 1EA More"><path fill="currentColor" d="M551.991 64H129.28l-8.329-44.423C118.822 8.226 108.911 0 97.362 0H12C5.373 0 0 5.373 0 12v8c0 6.627 5.373 12 12 12h78.72l69.927 372.946C150.305 416.314 144 431.42 144 448c0 35.346 28.654 64 64 64s64-28.654 64-64a63.681 63.681 0 0 0-8.583-32h145.167a63.681 63.681 0 0 0-8.583 32c0 35.346 28.654 64 64 64 35.346 0 64-28.654 64-64 0-17.993-7.435-34.24-19.388-45.868C506.022 391.891 496.76 384 485.328 384H189.28l-12-64h331.381c11.368 0 21.177-7.976 23.496-19.105l43.331-208C578.592 77.991 567.215 64 551.991 64zM464 416c17.645 0 32 14.355 32 32s-14.355 32-32 32-32-14.355-32-32 14.355-32 32-32zm-256 0c17.645 0 32 14.355 32 32s-14.355 32-32 32-32-14.355-32-32 14.355-32 32-32zm294.156-128H171.28l-36-192h406.876l-40 192zM272 196v-8c0-6.627 5.373-12 12-12h36v-36c0-6.627 5.373-12 12-12h8c6.627 0 12 5.373 12 12v36h36c6.627 0 12 5.373 12 12v8c0 6.627-5.373 12-12 12h-36v36c0 6.627-5.373 12-12 12h-8c-6.627 0-12-5.373-12-12v-36h-36c-6.627 0-12-5.373-12-12z"></path></svg>
+                                        </span>
+                                    </span>
+                                    <span class="btn-label">Add 1EA More</span>
+                                </button>
+                                <button class="btn icon-btn toggle-label btn-add-to-cart btn-primary false small js-is-not-cart" data-id="@item.Id"
+                                        type="button" style="min-width: 2.5rem; @if (item.CartQuantity > 0) { <text>display:none;</text> }" onclick="AddToCartForELT('@item.Id')">
+                                    <span class="cart-icon btn-icon-wrapper null">
+                                        <span class="edmo-icon edmo-icon-cartPlus undefined">
+                                            <svg aria-hidden="false" focusable="false" data-prefix="fal" data-icon="cart-plus" class="svg-inline--fa fa-cart-plus fa-w-18 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" aria-label="Add 1EA">
+                                                <path fill="currentColor" d="M551.991 64H129.28l-8.329-44.423C118.822 8.226 108.911 0 97.362 0H12C5.373 0 0 5.373 0 12v8c0 6.627 5.373 12 12 12h78.72l69.927 372.946C150.305 416.314 144 431.42 144 448c0 35.346 28.654 64 64 64s64-28.654 64-64a63.681 63.681 0 0 0-8.583-32h145.167a63.681 63.681 0 0 0-8.583 32c0 35.346 28.654 64 64 64 35.346 0 64-28.654 64-64 0-17.993-7.435-34.24-19.388-45.868C506.022 391.891 496.76 384 485.328 384H189.28l-12-64h331.381c11.368 0 21.177-7.976 23.496-19.105l43.331-208C578.592 77.991 567.215 64 551.991 64zM464 416c17.645 0 32 14.355 32 32s-14.355 32-32 32-32-14.355-32-32 14.355-32 32-32zm-256 0c17.645 0 32 14.355 32 32s-14.355 32-32 32-32-14.355-32-32 14.355-32 32-32zm294.156-128H171.28l-36-192h406.876l-40 192zM272 196v-8c0-6.627 5.373-12 12-12h36v-36c0-6.627 5.373-12 12-12h8c6.627 0 12 5.373 12 12v36h36c6.627 0 12 5.373 12 12v8c0 6.627-5.373 12-12 12h-36v36c0 6.627-5.373 12-12 12h-8c-6.627 0-12-5.373-12-12v-36h-36c-6.627 0-12-5.373-12-12z"></path>
+                                            </svg>
+                                        </span>
+                                    </span>
+                                    <span class="btn-label">Add 1EA</span>
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="btn icon-btn toggle-label btn-add-to-cart btn-primary false small js-is-not-cart" data-id="@item.Id"
+                                        type="button" style="min-width: 2.5rem; @if (item.CartQuantity>0) { <text>display:none;</text> }" onclick="AddToCart('@item.Id')">
+                                    <span class="cart-icon btn-icon-wrapper null">
+                                        <span class="edmo-icon edmo-icon-cartPlus undefined">
+                                            <svg aria-hidden="false" focusable="false" data-prefix="fal" data-icon="cart-plus" class="svg-inline--fa fa-cart-plus fa-w-18 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" aria-label="Add 1EA">
+                                                <path fill="currentColor" d="M551.991 64H129.28l-8.329-44.423C118.822 8.226 108.911 0 97.362 0H12C5.373 0 0 5.373 0 12v8c0 6.627 5.373 12 12 12h78.72l69.927 372.946C150.305 416.314 144 431.42 144 448c0 35.346 28.654 64 64 64s64-28.654 64-64a63.681 63.681 0 0 0-8.583-32h145.167a63.681 63.681 0 0 0-8.583 32c0 35.346 28.654 64 64 64 35.346 0 64-28.654 64-64 0-17.993-7.435-34.24-19.388-45.868C506.022 391.891 496.76 384 485.328 384H189.28l-12-64h331.381c11.368 0 21.177-7.976 23.496-19.105l43.331-208C578.592 77.991 567.215 64 551.991 64zM464 416c17.645 0 32 14.355 32 32s-14.355 32-32 32-32-14.355-32-32 14.355-32 32-32zm-256 0c17.645 0 32 14.355 32 32s-14.355 32-32 32-32-14.355-32-32 14.355-32 32-32zm294.156-128H171.28l-36-192h406.876l-40 192zM272 196v-8c0-6.627 5.373-12 12-12h36v-36c0-6.627 5.373-12 12-12h8c6.627 0 12 5.373 12 12v36h36c6.627 0 12 5.373 12 12v8c0 6.627-5.373 12-12 12h-36v36c0 6.627-5.373 12-12 12h-8c-6.627 0-12-5.373-12-12v-36h-36c-6.627 0-12-5.373-12-12z"></path>
+                                            </svg>
+                                        </span>
+                                    </span>
+                                    <span class="btn-label">Add 1EA</span>
+                                </button>
+                                <button class="btn icon-btn toggle-label btn-add-to-cart btn-primary-solid false small js-is-cart" data-id="@item.Id"
+                                        type="button" style="min-width: 2.5rem; @if (item.CartQuantity==0) { <text>display:none;</text> }" onclick="AddMoreToCart('@item.Id')">
+                                    <span class="cart-icon btn-icon-wrapper has-quantity">
+                                        <p class="cart-icon_quantity-in-cart" data-id="@item.Id">@item.CartQuantity</p>
+                                        <span class="edmo-icon edmo-icon-cartPlus undefined">
+                                            <svg aria-hidden="false" focusable="false" data-prefix="fal" data-icon="cart-plus" class="svg-inline--fa fa-cart-plus fa-w-18 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" aria-label="Add 1EA More"><path fill="currentColor" d="M551.991 64H129.28l-8.329-44.423C118.822 8.226 108.911 0 97.362 0H12C5.373 0 0 5.373 0 12v8c0 6.627 5.373 12 12 12h78.72l69.927 372.946C150.305 416.314 144 431.42 144 448c0 35.346 28.654 64 64 64s64-28.654 64-64a63.681 63.681 0 0 0-8.583-32h145.167a63.681 63.681 0 0 0-8.583 32c0 35.346 28.654 64 64 64 35.346 0 64-28.654 64-64 0-17.993-7.435-34.24-19.388-45.868C506.022 391.891 496.76 384 485.328 384H189.28l-12-64h331.381c11.368 0 21.177-7.976 23.496-19.105l43.331-208C578.592 77.991 567.215 64 551.991 64zM464 416c17.645 0 32 14.355 32 32s-14.355 32-32 32-32-14.355-32-32 14.355-32 32-32zm-256 0c17.645 0 32 14.355 32 32s-14.355 32-32 32-32-14.355-32-32 14.355-32 32-32zm294.156-128H171.28l-36-192h406.876l-40 192zM272 196v-8c0-6.627 5.373-12 12-12h36v-36c0-6.627 5.373-12 12-12h8c6.627 0 12 5.373 12 12v36h36c6.627 0 12 5.373 12 12v8c0 6.627-5.373 12-12 12h-36v36c0 6.627-5.373 12-12 12h-8c-6.627 0-12-5.373-12-12v-36h-36c-6.627 0-12-5.373-12-12z"></path></svg>
+                                        </span>
+                                    </span>
+                                    <span class="btn-label">Add 1EA More</span>
+                                </button>
+                            }
+                        </div>
+                    </div>
+                    <button class="favorite-button js-is-not-favorite" type="button" data-id="@item.Id" onclick="AddToFavorites('@item.Id')" @if (item.IsFavorite) { <text> style="display:none;" </text> }>
+                        <span class="contents-wrapper">
+                            <span class="edmo-icon edmo-icon-heart edmo-icon-bookmark">
+                                <svg role="img" aria-hidden="true" focusable="false">
+                                    <title>Save for Later</title>
+                                    <use xlink:href="/ResourcePackages/Edmo/assets/dist/sprites/symbol-defs.svg#icon-bookmark"></use>
+                                </svg>
+                            </span>
+                        </span>
+                    </button>
+                    <button class="favorite-button js-is-favorite" type="button" data-id="@item.Id" onclick="RemoveFromFavorites('@item.Id')" @if (!item.IsFavorite) { <text> style="display:none;" </text> }>
+                        <span class="contents-wrapper">
+                            <span class="edmo-icon edmo-icon-heart edmo-icon-remove-bookmark">
+                                <svg role="img" aria-hidden="true" focusable="false">
+                                    <title>Remove from Saved for Later</title>
+                                    <use xlink:href="/ResourcePackages/Edmo/assets/dist/sprites/symbol-defs.svg#icon-bookmark1"></use>
+                                </svg>
+                            </span>
+                        </span>
+                    </button>
+                </article>
+            }
+        }
+        <div class="product-list_end-div"></div>
+    </div>
+</section>
+
+<nav class="btn-row catalog-list-pagination">
+    <div class="loader undefined enable-background false loading" aria-label="Loading">
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 100 100"><path class="loader_circle" d="M18.1,50h-3c0-19.2,15.6-34.9,34.9-34.9v3C32.4,18.1,18.1,32.4,18.1,50z"><animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="1s" repeatCount="indefinite"></animateTransform></path><g><g><polygon class="loader_airplane" points="37.9,65.3 57,68.7 57.7,64.5 49.1,57.5 38.6,61.2"></polygon><polygon class="loader_airplane" points="32.9,51.9 50.6,47.2 65.6,57.1 69.5,54.4 54.5,25.1 30.5,48.1"></polygon><polygon class="loader_airplane" points="55.8,10.3 41.6,89.4 43.9,89.7 58.2,10.6"></polygon></g></g></svg>
+    </div>
+    @if (Model.PageNumber == 1)
+    {
+        <span class="btn btn-pagination disabled" aria-label="Button Disabled"><span>Prev</span></span>
+    }
+    else
+    {
+        <a class="btn btn-pagination" href="javascript:void(0)" onclick="GetResultsWithPageSize(@(Model.PageNumber-1))"><span>Prev</span></a>
+    }
+    <form class="catalog-list-pagination-form">
+        <div class="input input-number 0">
+            <label for="page"><span class="input-number_label"></span></label><div class="input-wrapper">
+                <input id="page" name="page" type="text" value="@Model.PageNumber"><span class="edmo-icon edmo-icon-success hide"><svg aria-hidden="false" focusable="false" data-prefix="fal" data-icon="check-circle" class="svg-inline--fa fa-check-circle fa-w-16 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" aria-label="Valid"><path fill="currentColor" d="M256 8C119.033 8 8 119.033 8 256s111.033 248 248 248 248-111.033 248-248S392.967 8 256 8zm0 464c-118.664 0-216-96.055-216-216 0-118.663 96.055-216 216-216 118.664 0 216 96.055 216 216 0 118.663-96.055 216-216 216zm141.63-274.961L217.15 376.071c-4.705 4.667-12.303 4.637-16.97-.068l-85.878-86.572c-4.667-4.705-4.637-12.303.068-16.97l8.52-8.451c4.705-4.667 12.303-4.637 16.97.068l68.976 69.533 163.441-162.13c4.705-4.667 12.303-4.637 16.97.068l8.451 8.52c4.668 4.705 4.637 12.303-.068 16.97z"></path></svg></span><span class="edmo-icon edmo-icon-error hide"><svg aria-hidden="false" focusable="false" data-prefix="fal" data-icon="exclamation-triangle" class="svg-inline--fa fa-exclamation-triangle fa-w-18 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" aria-label="undefined"><path fill="currentColor" d="M270.2 160h35.5c3.4 0 6.1 2.8 6 6.2l-7.5 196c-.1 3.2-2.8 5.8-6 5.8h-20.5c-3.2 0-5.9-2.5-6-5.8l-7.5-196c-.1-3.4 2.6-6.2 6-6.2zM288 388c-15.5 0-28 12.5-28 28s12.5 28 28 28 28-12.5 28-28-12.5-28-28-28zm281.5 52L329.6 24c-18.4-32-64.7-32-83.2 0L6.5 440c-18.4 31.9 4.6 72 41.6 72H528c36.8 0 60-40 41.5-72zM528 480H48c-12.3 0-20-13.3-13.9-24l240-416c6.1-10.6 21.6-10.7 27.7 0l240 416c6.2 10.6-1.5 24-13.8 24z"></path></svg></span><div class="increment_buttons">
+                    <button name="page" type="button" @if (Model.PageNumber < Model.TotalPages) { <text> onclick="GetResultsWithPageSize(@(Model.PageNumber+1))" </text> }>
+                        <span class="edmo-icon edmo-icon-up hide">
+                            <svg aria-hidden="false" focusable="false" data-prefix="far" data-icon="chevron-up" class="svg-inline--fa fa-chevron-up fa-w-14 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" aria-label="Add 1"><path fill="currentColor" d="M6.101 359.293L25.9 379.092c4.686 4.686 12.284 4.686 16.971 0L224 198.393l181.13 180.698c4.686 4.686 12.284 4.686 16.971 0l19.799-19.799c4.686-4.686 4.686-12.284 0-16.971L232.485 132.908c-4.686-4.686-12.284-4.686-16.971 0L6.101 342.322c-4.687 4.687-4.687 12.285 0 16.971z"></path></svg>
+                        </span>
+                    </button>
+                    <button name="page" type="button" @if (Model.PageNumber > 1) { <text> onclick="GetResultsWithPageSize(@(Model.PageNumber-1))" </text> }>
+                        <span class="edmo-icon edmo-icon-down hide">
+                            <svg aria-hidden="false" focusable="false" data-prefix="far" data-icon="chevron-down" class="svg-inline--fa fa-chevron-down fa-w-14 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" aria-label="Remove 1"><path fill="currentColor" d="M441.9 167.3l-19.8-19.8c-4.7-4.7-12.3-4.7-17 0L224 328.2 42.9 147.5c-4.7-4.7-12.3-4.7-17 0L6.1 167.3c-4.7 4.7-4.7 12.3 0 17l209.4 209.4c4.7 4.7 12.3 4.7 17 0l209.4-209.4c4.7-4.7 4.7-12.3 0-17z"></path></svg>
+                        </span>
+                    </button>
+                </div>
+            </div>
+            <div class="error"></div>
+        </div>
+    </form>
+    <p class="page-numbers"> / @Model.TotalPages</p>
+    <a class="btn btn-pagination" href="javascript:void(0)" onclick="GetResultsWithPageSize(@(Model.PageNumber+1))"><span>Next</span></a>
+</nav>
+
+<script>
+    $(function () {
+        $('div[id="PageNumber_div"]>div>ul').css("min-width", "unset");
+        $('div[id="PageNumber_div"]>div>button').css("height", "32px");
+
+        $("#PageNumber").val('@Model.PageSize');
+        $("#PageNumber_div").data("value", '@Model.PageSize')
+        $("#PageNumber_div").find(".btn-label").text('@Model.PageSize');
+
+        setTimeout(() => {
+            $("div[class='loader undefined enable-background false loading']").hide();
+        }, 500)
+    })
+
+    $("#page").on("keypress", function (e) {
+        if (e.keyCode == 13) {
+            e.preventDefault();
+            GetResultsWithPageSize($(this).val());
+        }
+    });
+
+    $("#page").on("keyup", function (e) {
+        var v = this.value;
+        if ($.isNumeric(v) === false) {
+            //chop off the last char entered
+            this.value = this.value.slice(0, -1);
+            return;
+        }
+
+        var page = this.value * 1;
+        if (page >@Model.TotalPages) {
+            this.value = this.value.slice(0, -1);
+        }
+    })
+
+    var partNumbers = [];
+    $(".js-list-for-stock").each(function () {
+        partNumbers.push($(this).data("list-for-stock"));
+    })
+
+    var str = new StockAndPrice();
+    str.GetPriceAndStock(partNumbers, "");
+
+    function AddToFavorites(id) {
+	    $(".js-is-not-favorite[data-id='" + id + "']").hide();
+        $(".js-is-favorite[data-id='" + id + "']").show();
+        $.ajax({
+            type: "POST",
+            url: "/rest-api/update-favorite",
+            data: { productId: id, add: true },
+            dataType: "json"
+        });
+    }
+
+    function RemoveFromFavorites(id) {
+        $(".js-is-favorite[data-id='" + id + "']").hide();
+	    $(".js-is-not-favorite[data-id='" + id + "']").show();
+        $.ajax({
+            type: "POST",
+            url: "/rest-api/update-favorite",
+            data: { productId: id, add: false },
+            dataType: "json"
+        });
+    }
+
+    function AddToCart(id) {
+        $(".js-is-not-cart[data-id='" + id + "']").hide();
+        $(".js-is-cart[data-id='" + id + "']").show();
+        AddMoreToCart(id);
+    }
+
+    function AddMoreToCart(id) {
+        var qty = $(".cart-icon_quantity-in-cart[data-id='" + id + "']").text() * 1;
+        qty++;
+        $(".cart-icon_quantity-in-cart[data-id='" + id + "']").text(qty);
+        $.ajax({
+            type: "POST",
+            url: "/rest-api/update-cart",
+            data: { productId: id, quantity: qty },
+            dataType: "json",
+            success: function () {
+                LoadAccountInfo();
+            }
+        });
+    }
+
+    function AddToCartForELT(id) {
+        console.log("add ELT from result...........")
+
+        $(".js-is-not-cart[data-id='" + id + "']").hide();
+        $(".js-is-cart[data-id='" + id + "']").show();
+
+        $.ajax({
+            type: "POST",
+            url: "/rest-api/add-cart-elt",
+            data: { productId: id },
+            dataType: "json",
+            success: function () {
+                LoadAccountInfo();
+            }
+        });
+    }
+
+    //Scroll To Top
+    var scrollToTopBtn = document.getElementById("btnBackToTop");
+    var rootElement = document.documentElement;
+
+    function handleScroll() {
+        // Do something on scroll
+        var scrollTotal = rootElement.scrollHeight - rootElement.clientHeight;
+        if (rootElement.scrollTop / scrollTotal > 0) {
+            // Show button
+            scrollToTopBtn.classList.add("showBtn");
+        } else {
+            // Hide button
+            scrollToTopBtn.classList.remove("showBtn");
+        }
+    }
+
+    function scrollToTop() {
+        // Scroll to top logic
+        rootElement.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+    }
+
+    scrollToTopBtn.addEventListener("click", scrollToTop);
+    document.addEventListener("scroll", handleScroll);
+
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    function GetResultsWithPageSize(number) {
+        var size = $('#PageNumber').val();
+        console.log(number, size)
+        categoryFilter.GetResultsWithPageSize(number, size)
+    }
+</script>

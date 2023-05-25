@@ -1,0 +1,129 @@
+﻿@using SitefinityWebApp.Utilities;
+@model SitefinityWebApp.Areas.PageWidgets.Models.ELTProgramming.ELTOptionModel
+
+@{
+    List<SelectListItem> types = new List<SelectListItem>();
+    types.Add(new SelectListItem { Value = "1", Text = "ELT" });
+    types.Add(new SelectListItem { Value = "2", Text = "PLB" });
+    types.Add(new SelectListItem { Value = "3", Text = "Dongle" });
+    types.Add(new SelectListItem { Value = "4", Text = "Program Adapter" });
+
+    List<SelectListItem> brands = new List<SelectListItem>();
+    brands.Add(new SelectListItem { Value = "1", Text = "ARTEX" });
+    brands.Add(new SelectListItem { Value = "2", Text = "KANNAD/OROLIA" });
+    brands.Add(new SelectListItem { Value = "3", Text = "ACK" });
+    brands.Add(new SelectListItem { Value = "4", Text = "ACR PLBs" });
+}
+
+<div class="modal fade login-form-modal" style="display: none;" id="ELTModalToggle" aria-hidden="true" aria-labelledby="ELTModalToggleLabel" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ELTModalToggleLabel">&nbsp;</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="elt-programming-options-form">
+                    <div class="input input-select input-required input-select_align-bottom">
+                        <label for="Brand">Select Reprogramming Type</label>
+                        @Html.EdmoSelectBoxFor(m => m.Type, "", "Select Reprogramming Type", "Please select Reprogramming Type", new { @class = "text-danger" }, types)
+                    </div>
+                    <div class="input input-select input-required input-select_align-bottom">
+                        <label for="Brand">Select ELT Brand</label>
+                        @Html.EdmoSelectBoxFor(m => m.Brand, "load_elt.ChangeBrand()", "Select ELT Brand", "Please select ELT Brand", new { @class = "text-danger" }, brands)
+                    </div>
+                    <div id="model_section" class="input input-select input-required input-select_align-bottom" style="display:none;">
+                        <label for="Model">Select ELT Model</label>
+                        @Html.EdmoSelectBoxFor(m => m.Model, "load_elt.ChangeModel()", "Select ELT Model", "Please select ELT Model", new { @class = "text-danger" }, new List<SelectListItem>())
+                    </div>
+                    <fieldset id="adapter_section" class="input input-radio-group undefined input-required valid" style="display:none;">
+                        <p>Will a programming adapter be used?</p>
+                        <div>
+                            <div class="input input-radio">
+                                @Html.EdmoRadioButtonFor(m => m.IsUsedAdapter, "load_elt.ToggleAdapter", "Yes", "true")
+                            </div>
+                            <div class="input input-radio">
+                                @Html.EdmoRadioButtonFor(m => m.IsUsedAdapter, "load_elt.ToggleAdapter", "No", "false")
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset id="interface_section" class="input input-radio-group undefined input-required valid" style="display:none;">
+                        <p>Will a Nav Interface be used?</p>
+                        <div>
+                            <div class="input input-radio">
+                                @Html.EdmoRadioButtonFor(m => m.IsUsedInterface, "load_elt.ToggleInterface", "Yes", "true")
+                            </div>
+                            <div class="input input-radio">
+                                @Html.EdmoRadioButtonFor(m => m.IsUsedInterface, "load_elt.ToggleInterface", "No", "false")
+                            </div>
+                        </div>
+
+                    </fieldset>
+                    <fieldset id="boud_rate_section" class="input input-radio-group undefined input-required  undefined undefined" style="display:none;">
+                        <div>
+                            <div class="input input-checkbox undefined 0 false">
+                                @Html.EdmoCheckBoxFor(m => m.BoudRate1, "", "4800 Baud Rate")
+                                <p>*operates under NMEA</p>
+                            </div>
+                            <div class="input input-checkbox undefined 0 false">
+                                @Html.EdmoCheckBoxFor(m => m.BoudRate2, "", "9600 Baud Rate")
+                                <p>*RS232 Serial Data Only</p>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset id="speed_section" class="input input-radio-group undefined input-required  undefined undefined" style="display:none;">
+                        <div>
+                            <div class="input input-checkbox undefined 0 false">
+                                @Html.EdmoCheckBoxFor(m => m.ARINC1, "", "ARINC High Speed (100 kHz)")
+                            </div>
+                            <div class="input input-checkbox undefined 0 false">
+                                @Html.EdmoCheckBoxFor(m => m.ARINC2, "", "ARINC Low Speed (12.5 kHz)")
+                            </div>
+                            <div class="input input-checkbox undefined 0 false">
+                                @Html.EdmoCheckBoxFor(m => m.RS232, "", "RS232 (9600 Baud Rate)")
+                            </div>
+                        </div>
+                    </fieldset>
+                    <div id="long_msg_section" class="input input-select input-required input-select_align-bottom" style="display:none;">
+                        <label id="long_msg_section_label" for="LMessage">Message Option (Long)</label>
+                        @Html.EdmoSelectBoxFor(m => m.LongMessage, "load_elt.ChangeLongMessage()", "Select Message Option", "Please Select Message Option.", new { @class = "text-danger" }, new List<SelectListItem>())
+                    </div>
+                    <div class="input input-text 0 input-required" id="tail_number_section" style="display:none;">
+                        <label for="TailNumber">Tail Number</label>
+                        @Html.EdmoTextBoxFor(m => m.TailNumber, new { @class = "form-control", required = "required" }, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="input input-text 0 input-required" id="country_section" style="display:none;">
+                        <label for="Country">Country</label>
+                        @Html.EdmoTextBoxFor(m => m.Country, new { @class = "form-control", required = "required" }, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="input input-text 0 input-required" id="country_code_section" style="display:none;">
+                        <label for="CountryCode">Country Code</label>
+                        @Html.EdmoTextBoxFor(m => m.CountryCode, new { @class = "form-control", required = "required" }, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="input input-text 0 input-required" id="serial_num_section" style="display:none;">
+                        <label for="NationalSerialNumber" id="serial_num_label">National Serial Number</label>
+                        @Html.EdmoTextBoxFor(m => m.NationalSerialNumber, new { @class = "form-control", required = "required" }, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="input input-text 0 input-required" id="hexcode_section" style="display:none;">
+                        <label for="HexCode" id="hexcode_label">Hexadecimal, Binary, or Octal Code</label>
+                        @Html.EdmoTextBoxFor(m => m.HexCode, new { @class = "form-control", required = "required" }, "", new { @class = "text-danger" })
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="btn-row">
+                    <button class="btn btn-gold small" type="button" onclick="load_elt.SubmitELTOptionsFromModal()">Submit</button>
+                </div>
+                <p id="elt_error">&nbsp;</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var load_elt = {};
+    $(function () {
+        load_elt = new LoadELT();
+        load_elt.Init();
+    })
+</script>

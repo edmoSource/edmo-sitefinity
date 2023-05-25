@@ -1,0 +1,54 @@
+﻿@using SitefinityWebApp.Areas.Products.Models;
+
+@model  List<ProductAttributesCategoryFilters>
+
+<div class="dropdown-products">
+    <ul class="dropdown-products-departments">
+        @{ 
+            var index = 0;
+        }
+        @foreach (var category in Model)
+        {
+                <li class="dropdown-tab @{if (index == 0) {<text>active</text>} } " data-content-ordinal="@index" tabindex="@index">@category.Title</li>
+                index++;
+        }
+        
+    </ul>
+    <div class="dropdown-products-categories">
+        @{
+            index = 0;
+        }
+
+        @foreach (var category in Model)
+        {
+            <section class="dropdown-products-category-group @{if (index == 0) {<text>active</text>} }" data-content-ordinal="@index">
+                <h4><a href="/browse/@category.Url">Browse <!-- -->@category.Title </a></h4>
+                <ul>
+                    @foreach (var child in category.Filters)
+                    {
+                        <li><a href="/browse/@category.Url/@child.Url">@child.Title</a></li>
+                    }
+                </ul>
+            </section>
+            index++;
+        }
+
+
+
+
+
+
+    </div>
+</div>
+
+
+<script>
+    $(function () {
+        $(".dropdown-products-departments li").on("click", function (e) {
+            $(".dropdown-products-departments li").removeClass("active");
+            $(".dropdown-products-category-group").removeClass("active");
+            $(".dropdown-products-category-group[data-content-ordinal='" + $(this).data("content-ordinal") + "']").addClass("active");
+            $(this).addClass("active");
+        })
+    });
+</script>

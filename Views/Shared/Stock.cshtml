@@ -1,0 +1,22 @@
+﻿@model System.String
+<section class="stock-status">
+    <!--HOW ARE WE DEALING WITH STOCK-->
+    <p class="stock-notice stock-notice_no-stock no-stock-wa-@Model" style="display:none;">No Stock WA</p>
+    <p class="stock-notice stock-notice_no-stock no-stock-tn-@Model" style="display:none;">No Stock TN</p>
+    <p class="stock-notice stock-notice_in-stock in-stock-wa-@Model">
+        In Stock WA
+        <span class="edmo-icon edmo-icon-check">
+            <svg role="img" aria-hidden="true" focusable="false">
+                <use xlink:href="/ResourcePackages/Edmo/assets/dist/sprites/symbol-defs.svg#icon-check"></use>
+            </svg>
+        </span>
+    </p>
+    <p class="stock-notice stock-notice_in-stock in-stock-tn-@Model">
+        In Stock TN
+        <span class="edmo-icon edmo-icon-check">
+            <svg role="img" aria-hidden="true" focusable="false">
+                <use xlink:href="/ResourcePackages/Edmo/assets/dist/sprites/symbol-defs.svg#icon-check"></use>
+            </svg>
+        </span>
+    </p>                          
+</section>

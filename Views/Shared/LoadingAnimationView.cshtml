@@ -1,0 +1,21 @@
+﻿@model SitefinityWebApp.Mvc.Models.LoaderStatus
+
+@{
+    if (!Telerik.Sitefinity.Services.SystemManager.IsDesignMode)
+    {
+        <div id="@Model.Type-loader_partial" class="loader undefined enable-background @Model.Size @Model.Loading" aria-label="Loading">
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 100 100">
+                <path class="loader_circle" d="M18.1,50h-3c0-19.2,15.6-34.9,34.9-34.9v3C32.4,18.1,18.1,32.4,18.1,50z">
+                    <animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="1s" repeatCount="indefinite"></animateTransform>
+                </path>
+                <g>
+                    <g>
+                        <polygon class="loader_airplane" points="37.9,65.3 57,68.7 57.7,64.5 49.1,57.5 38.6,61.2"></polygon>
+                        <polygon class="loader_airplane" points="32.9,51.9 50.6,47.2 65.6,57.1 69.5,54.4 54.5,25.1 30.5,48.1"></polygon>
+                        <polygon class="loader_airplane" points="55.8,10.3 41.6,89.4 43.9,89.7 58.2,10.6"></polygon>
+                    </g>
+                </g>
+            </svg>
+        </div>
+    }
+}

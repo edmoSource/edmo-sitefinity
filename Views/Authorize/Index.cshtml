@@ -1,0 +1,8 @@
+﻿@model Amazon.CognitoIdentityProvider.Model.GetUserResponse
+
+@Model.Username
+<br />
+@foreach(var item in Model.UserAttributes)
+{
+<div>@item.Name : @item.Value</div>
+}

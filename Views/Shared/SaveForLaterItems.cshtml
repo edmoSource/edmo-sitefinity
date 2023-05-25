@@ -1,0 +1,172 @@
+﻿@model List<SitefinityWebApp.Areas.Products.Models.ProductDetailModel>
+@{
+    decimal totalPrice = 0;
+    var savedItems = Model.Where(p => p.IsFavorite && p.CartQuantity == 0).ToList();
+}
+
+
+@if (savedItems.Count > 0)
+{
+    <div class="cart-table_edit  js-check-save">
+        <button class="btn btn-link small" type="button" disabled="" onclick="ReturnSelected()">
+            <svg role="img" aria-hidden="true" focusable="false">
+                <use xlink:href="/ResourcePackages/Edmo/assets/dist/sprites/symbol-defs.svg#icon-cart-arrow-up"></use>
+            </svg>Add to Shopping Cart
+        </button>
+        <button class="btn btn-link small" type="button" disabled="" onclick="RemoveSelected()">
+            <svg role="img" aria-hidden="true" focusable="false">
+                <use xlink:href="/ResourcePackages/Edmo/assets/dist/sprites/symbol-defs.svg#icon-trash-can"></use>
+            </svg>Delete Items
+        </button>
+    </div>
+    <table class="landscape-product-list cart-table ">
+        <thead>
+            <tr>
+                <th class="item">Item</th>
+                <th class="quantity">Quantity</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in savedItems)
+            {
+                totalPrice += item.CartPrice;
+                <tr class="landscape-product-list_item js-list-for-stock" data-list-for-stock="@item.EdmoId">
+                    <td class="landscape-product-list_item_description landscape-product-list_item_cell">
+                        <div class="info_item_up_wrapper">
+                            <div class="landscape-product-list_item_image-wrapper">
+                                <a class="product-card-image-link" href="/product/@item.EdmoId/@item.UrlName">
+                                    <div class="image-wrapper loaded undefined" style="background-image: url(&quot;&quot;); width: 100%; height: 100%;">
+                                        <img src="@item.ImagePath" srcset="" alt="@item.AltText">
+                                    </div>
+                                </a>
+                            </div>
+                            <div>
+                                <a href="/product/@item.EdmoId/@item.UrlName">
+                                    <h4 class="smoke_gray">@item.Title</h4>
+                                </a>
+                                <p class="landscape-product-list_item_id">EDMO#: @item.EdmoId</p>
+                                <section class="landscape-product-list_item_stock">
+                                    @Html.Partial("Stock", item.EdmoId)
+                                </section>
+                            </div>
+                        </div>
+                    </td>
+                    <td align="center" class="landscape-product-list_item_details landscape-product-list_item_quantity landscape-product-list_item_cell">
+                        <div class="landscape-product-list_item-select">
+                            <button class="btn btn-checkbox js-check-save-@item.Id" role="checkbox" aria-label="Select Item" aria-checked="false" onclick="CheckSaveForLater('@item.Id')">
+                                <span class="edmo-icon edmo-icon-square false"><svg aria-hidden="false" focusable="false" data-prefix="fal" data-icon="square" class="svg-inline--fa fa-square fa-w-14 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" aria-label="checkbox"><path fill="currentColor" d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48zm16 400c0 8.8-7.2 16-16 16H48c-8.8 0-16-7.2-16-16V80c0-8.8 7.2-16 16-16h352c8.8 0 16 7.2 16 16v352z"></path></svg></span>
+                                <span class="edmo-icon edmo-icon-checkbox hide" data-id="@item.Id"><svg aria-hidden="false" focusable="false" data-prefix="fas" data-icon="check-square" class="svg-inline--fa fa-check-square fa-w-14 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" aria-label="checkbox checked"><path fill="currentColor" d="M400 480H48c-26.51 0-48-21.49-48-48V80c0-26.51 21.49-48 48-48h352c26.51 0 48 21.49 48 48v352c0 26.51-21.49 48-48 48zm-204.686-98.059l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.248-16.379-6.249-22.628 0L184 302.745l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.25 16.379 6.25 22.628.001z"></path></svg></span>
+                            </button>
+                        </div>
+                        <div class="form-wrapper">
+                            <div class="product-amount product-qty-save" tabindex="0">
+                                <div class="input input-number undefined input-required valid">
+                                    <label for="quantity" class="">
+                                        <span class="input-number_label">EA</span>
+                                        <div class="increment_buttons">
+                                            <button name="quantity" type="button" onclick="IncreaseQuantity('@item.Id',false)"><span class="edmo-icon edmo-icon-up undefined"><svg aria-hidden="false" focusable="false" data-prefix="far" data-icon="chevron-up" class="svg-inline--fa fa-chevron-up fa-w-14 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" aria-label="Add 1"><path fill="currentColor" d="M6.101 359.293L25.9 379.092c4.686 4.686 12.284 4.686 16.971 0L224 198.393l181.13 180.698c4.686 4.686 12.284 4.686 16.971 0l19.799-19.799c4.686-4.686 4.686-12.284 0-16.971L232.485 132.908c-4.686-4.686-12.284-4.686-16.971 0L6.101 342.322c-4.687 4.687-4.687 12.285 0 16.971z"></path></svg></span></button>
+                                            <button name="quantity" type="button" onclick="DecreaseQuantity('@item.Id',false)"><span class="edmo-icon edmo-icon-down undefined"><svg aria-hidden="false" focusable="false" data-prefix="far" data-icon="chevron-down" class="svg-inline--fa fa-chevron-down fa-w-14 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" aria-label="Remove 1"><path fill="currentColor" d="M441.9 167.3l-19.8-19.8c-4.7-4.7-12.3-4.7-17 0L224 328.2 42.9 147.5c-4.7-4.7-12.3-4.7-17 0L6.1 167.3c-4.7 4.7-4.7 12.3 0 17l209.4 209.4c4.7 4.7 12.3 4.7 17 0l209.4-209.4c4.7-4.7 4.7-12.3 0-17z"></path></svg></span></button>
+                                        </div>
+                                    </label>
+                                    <div class="input-wrapper">
+                                        <input class="js-quantity-saved" id="quantity_@item.Id" data-id="@item.Id" type="text" placeholder="" required="" value="1">
+                                    </div>
+                                    <div class="error"></div>
+                                </div>
+                            </div>
+                            <div class="item-utility_icons">
+                                <button style="display:none;" data-price="@item.EdmoId" class="btn btn-link small js-price-display" type="button" onclick="ReturnToCart('@item.Id')">
+                                    <svg role="img" aria-hidden="true" focusable="false">
+                                        <title>Move to Shopping Cart</title>
+                                        <use xlink:href="/ResourcePackages/Edmo/assets/dist/sprites/symbol-defs.svg#icon-cart-arrow-up"></use>
+                                    </svg>
+                                </button>
+                                <span data-itemid="@item.EdmoId" class="js-divider-display" style="display:none;">|</span>
+                                <button class="btn btn-link small" type="button" onclick="RemoveFromFavorites('@item.Id')">
+                                    <svg role="img" aria-hidden="true" focusable="false">
+                                        <title>Delete from Saved Items</title>
+                                        <use xlink:href="/ResourcePackages/Edmo/assets/dist/sprites/symbol-defs.svg#icon-trash-can"></use>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="landscape-product-list_item_details landscape-product-list_item_price landscape-product-list_item_cell">
+                        <h3><span class="js-price js-price-@item.Id" data-price="@item.EdmoId">@(item.CartPrice == 0 ? string.Empty : item.CartPrice.ToString("c") )</span></h3>
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="2" align="right">
+                    <h3>Estimated Subtotal</h3>
+                </td>
+                <td>
+                    <h3><span id="total_price">@(totalPrice > 0 ? totalPrice.ToString("c") : "TOTAL")</span></h3>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+}
+else
+{
+    <div>You have no saved items.</div>
+}
+
+<script>
+    var partNumbers = @Html.Raw(Json.Encode(savedItems.Select(x => x.EdmoId)));
+    //$(".js-list-for-stock").each(function () {
+    //    partNumbers.push($(this).data("list-for-stock"));
+    //})
+
+    if (partNumbers.length > 0) {
+        $.ajax({
+            type: "POST",
+            contentType: 'application/json; charset=utf-8',
+            url: "/edmo-api/EdmoApi/EdmoProduct/UpdatePrice",
+            data: JSON.stringify({ 'partNumbers': partNumbers }),
+            success: function (e) {
+                if (e && e.Stocks) {
+                    $(e.Stocks).each(function (i) {
+                        if (this.StockOnHandTN == 0) {
+                            $(".no-stock-tn-" + this.EdmoId.replace("/", "\\/")).show();
+                            $(".in-stock-tn-" + this.EdmoId.replace("/", "\\/")).hide();
+                        }
+                        if (this.StockOnHandWA == 0) {
+                            $(".no-stock-wa-" + this.EdmoId.replace("/", "\\/")).show();
+                            $(".in-stock-wa-" + this.EdmoId.replace("/", "\\/")).hide();
+                        }
+                    });
+                }
+
+                if (e && e.Prices) {
+                    let total = 0;
+                    $(e.Prices).each(function (i) {
+                        if (this.Price > 0) {
+                            $(".js-price[data-price='" + this.EdmoId + "']").text(this.PriceFormatted);
+                            $(".js-price-display[data-price='" + this.EdmoId + "']").show();
+                            $(".js-divider-display[data-itemid='" + this.EdmoId + "']").show();
+                            total += this.Price;
+                        }
+                        else {
+                            $(".js-price[data-price='" + this.EdmoId + "']").text("Call For Pricing");
+                            $(".js-price-display[data-price='" + this.EdmoId + "']").hide();
+                            $(".js-divider-display[data-itemid='" + this.EdmoId + "']").hide();
+                        }
+                    });
+
+                    var formatter = new Intl.NumberFormat('en-US', {
+                        style: 'currency',
+                        currency: 'USD',
+
+                    });
+
+                    $("#total_price").text(formatter.format(total));
+                }
+            },
+            dataType: "json"
+        });
+    }
+</script>

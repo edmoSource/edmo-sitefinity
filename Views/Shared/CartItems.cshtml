@@ -1,0 +1,242 @@
+﻿@using SitefinityWebApp.Areas.PageWidgets.Models.ELTProgramming;
+@using SitefinityWebApp.Utilities;
+@using Newtonsoft.Json
+@using SitefinityWebApp.Areas.EdmoApi.Models
+
+@model List<SitefinityWebApp.Areas.Products.Models.ProductDetailModel>
+@if (Model != null && Model.Where(p => p.CartQuantity > 0).Any())
+{
+    <div class="cart-table_edit">
+        <button class="btn btn-link small" type="button" onclick="ClearCart()">
+            <svg role="img" aria-hidden="true" focusable="false">
+                <use xlink:href="/ResourcePackages/Edmo/assets/dist/sprites/symbol-defs.svg#icon-cart-xmark"></use>
+            </svg>Clear Shopping Cart
+        </button>
+    </div>
+    <table class="landscape-product-list cart-table ">
+        <thead>
+            <tr>
+                <th class="item">Item</th>
+                <th class="quantity">Quantity</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Where(p => p.CartQuantity > 0))
+            {
+                EdmoProductUpdateResponse.Part part = null;
+                try
+                {
+                    part = JsonConvert.DeserializeObject<EdmoProductUpdateResponse.Part>(item.PartJson);
+                }
+                catch
+                {
+                    part = null;
+                }
+
+                <tr class="landscape-product-list_item js-list-for-stock" data-list-for-stock="@item.EdmoId">
+                    <td class="landscape-product-list_item_description landscape-product-list_item_cell">
+                        <div class="info_item_up_wrapper">
+                            <div class="landscape-product-list_item_image-wrapper">
+                                <a class="product-card-image-link" href="/product/@item.EdmoId/@item.UrlName">
+                                    <div class="image-wrapper loaded undefined" style="background-image: url(&quot;&quot;); width: 100%; height: 100%;">
+                                        <img src="@item.ImagePath" srcset="" alt="@item.AltText">
+                                    </div>
+                                </a>
+                            </div>
+                            <div>
+                                <a href="/product/@item.EdmoId/@item.UrlName">
+                                    <h4 class="smoke_gray">@item.Title</h4>
+                                </a>
+                                @if (string.Equals(item.EdmoId.ToUpper(), "REPROGRAM"))
+                                {
+                                    <p class="landscape-product-list_item_id">EDMO# = @item.EdmoId</p>
+                                }
+                                else
+                                {
+                                    <p class="landscape-product-list_item_id">EDMO#: @item.EdmoId</p>
+                                }
+                                <section class="landscape-product-list_item_stock">
+                                    @Html.Partial("Stock", item.EdmoId)
+                                </section>
+                                @if (string.Equals(item.EdmoId.ToUpper(), "REPROGRAM"))
+                                {
+                                    <div>
+                                        <button class="btn btn-gold small" data-bs-target="#ELTModalToggle" data-bs-toggle="modal" data-bs-dismiss="modal">
+                                            ELT Reprogramming Options
+                                        </button>
+                                    </div>
+                                }
+
+                                @if (item.Title.ToLower().Contains("elt") && !string.Equals(item.EdmoId.ToUpper(), "REPROGRAM"))
+                                {
+                                    <div>
+                                        <h6 class="smoke_gray">ELTs are factory programmed with standard location serial number protocol and US country code.</h6>
+                                        <p>For free custom programming please check the box below. EDMO Customer Service will contact you for programming information.</p>
+                                        <div class="input input-checkbox undefined 0 false">
+                                            @Html.EdmoCheckBoxFor(m => m.First().IsELT, "", "Add free custom programming")
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </td>
+                    <td align="center" class="landscape-product-list_item_details landscape-product-list_item_quantity landscape-product-list_item_cell">
+                        <div class="form-wrapper">
+                            <div class="product-amount product-qty-cart" tabindex="0">
+                                <div class="input input-number undefined input-required valid">
+                                    <div class="loader undefined enable-background small loading" aria-label="Loading" style="display: none">
+                                        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 100 100"><path class="loader_circle" d="M18.1,50h-3c0-19.2,15.6-34.9,34.9-34.9v3C32.4,18.1,18.1,32.4,18.1,50z"><animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="1s" repeatCount="indefinite"></animateTransform></path><g><g><polygon class="loader_airplane" points="37.9,65.3 57,68.7 57.7,64.5 49.1,57.5 38.6,61.2"></polygon><polygon class="loader_airplane" points="32.9,51.9 50.6,47.2 65.6,57.1 69.5,54.4 54.5,25.1 30.5,48.1"></polygon><polygon class="loader_airplane" points="55.8,10.3 41.6,89.4 43.9,89.7 58.2,10.6"></polygon></g></g></svg>
+                                    </div>
+                                    <label for="quantity" class="">
+                                        @if (part != null && !string.IsNullOrEmpty(part.unitOfMeasure))
+                                        {
+                                            <span class="input-number_label">@part.unitOfMeasure</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="input-number_label">EA</span>
+                                        }
+
+                                        @if (string.Equals(item.EdmoId.ToUpper(), "REPROGRAM") || item.Title.ToLower().Contains("elt"))
+                                        {
+                                        }
+                                        else
+                                        {
+                                            <span class="increment_buttons">
+                                                <button name="quantity" type="button" onclick="IncreaseQuantity('@item.Id',true)"><span class="edmo-icon edmo-icon-up undefined"><svg aria-hidden="false" focusable="false" data-prefix="far" data-icon="chevron-up" class="svg-inline--fa fa-chevron-up fa-w-14 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" aria-label="Add 1"><path fill="currentColor" d="M6.101 359.293L25.9 379.092c4.686 4.686 12.284 4.686 16.971 0L224 198.393l181.13 180.698c4.686 4.686 12.284 4.686 16.971 0l19.799-19.799c4.686-4.686 4.686-12.284 0-16.971L232.485 132.908c-4.686-4.686-12.284-4.686-16.971 0L6.101 342.322c-4.687 4.687-4.687 12.285 0 16.971z"></path></svg></span></button>
+                                                <button name="quantity" type="button" onclick="DecreaseQuantity('@item.Id',true)"><span class="edmo-icon edmo-icon-down undefined"><svg aria-hidden="false" focusable="false" data-prefix="far" data-icon="chevron-down" class="svg-inline--fa fa-chevron-down fa-w-14 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" aria-label="Remove 1"><path fill="currentColor" d="M441.9 167.3l-19.8-19.8c-4.7-4.7-12.3-4.7-17 0L224 328.2 42.9 147.5c-4.7-4.7-12.3-4.7-17 0L6.1 167.3c-4.7 4.7-4.7 12.3 0 17l209.4 209.4c4.7 4.7 12.3 4.7 17 0l209.4-209.4c4.7-4.7 4.7-12.3 0-17z"></path></svg></span></button>
+                                            </span>
+                                        }
+                                    </label>
+                                    <div class="input-wrapper">
+                                        @if (string.Equals(item.EdmoId.ToUpper(), "REPROGRAM") || item.Title.ToLower().Contains("elt"))
+                                        {
+                                            <input class="js-quantity" id="quantity_@item.Id" data-id="@item.Id" type="text" placeholder="" disabled value="1">
+                                        }
+                                        else
+                                        {
+                                            <input class="js-quantity" id="quantity_@item.Id" data-id="@item.Id" type="text" placeholder="" required="" value="@item.CartQuantity">
+                                        }
+                                    </div>
+                                    <div class="error"></div>
+                                </div>
+                            </div>
+                            <div class="item-utility_icons">
+                                @if (string.Equals(item.EdmoId.ToUpper(), "REPROGRAM") || item.Title.ToLower().Contains("elt"))
+                                {
+                                    <button class="btn btn-link small" type="button" onclick="RemoveELTFromCart('@item.Id')">
+                                        <svg role="img" aria-hidden="true" focusable="false">
+                                            <title>Delete from Shopping Cart</title>
+                                            <use xlink:href="/ResourcePackages/Edmo/assets/dist/sprites/symbol-defs.svg#icon-trash-can"></use>
+                                        </svg>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-link small" type="button" onclick="SaveForLater('@item.Id')">
+                                        <svg role="img" aria-hidden="true" focusable="false">
+                                            <title>Move to Saved Items</title>
+                                            <use xlink:href="/ResourcePackages/Edmo/assets/dist/sprites/symbol-defs.svg#icon-bookmark"></use>
+                                        </svg>
+                                    </button><span>|</span><button class="btn btn-link small" type="button" onclick="RemoveFromCart('@item.Id')">
+                                        <svg role="img" aria-hidden="true" focusable="false">
+                                            <title>Delete from Shopping Cart</title>
+                                            <use xlink:href="/ResourcePackages/Edmo/assets/dist/sprites/symbol-defs.svg#icon-trash-can"></use>
+                                        </svg>
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </td>
+                    <td class="landscape-product-list_item_details landscape-product-list_item_price landscape-product-list_item_cell">
+                        @{
+                            string price = item.CartPrice.ToString("c");
+                            decimal data_price = Math.Ceiling(item.CartPrice * 100) / 100;
+
+                            if (string.Equals(item.EdmoId.ToUpper(), "REPROGRAM") || item.Title.ToLower().Contains("elt"))
+                            {
+                                <h3 class="js-price-@item.Id" data-price="@data_price">@price</h3>
+                            }
+                            else
+                            {
+                                <h3 class="js-price-@item.Id" data-price="@data_price">@Convert.ToDecimal(data_price * item.CartQuantity).ToString("c")</h3>
+                            }
+                            if (part != null && !string.IsNullOrEmpty(part.unitOfMeasure))
+                            {
+                                <p class="unit-price"><span class="label smoke_gray">Unit Price</span>@price @part.unitOfMeasure</p>
+                            }
+                            else
+                            {
+                                <p class="unit-price"><span class="label smoke_gray">Unit Price</span>@price EA</p>
+                            }
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="2" align="right">
+                    <h3>Estimated Subtotal</h3>
+                </td>
+                <td>
+                    @*<h3 id="cartTotal">@Model.Where(p => p.CartQuantity > 0).Sum(p => p.CartQuantity * p.CartPrice).ToString("c")</h3>*@
+
+                    @{
+                        decimal totalPrice = 0;
+
+                        foreach (var item in Model.Where(p => p.CartQuantity > 0))
+                        {
+                            decimal data_price = Math.Ceiling(item.CartPrice * 100) / 100;
+
+                            if (string.Equals(item.EdmoId.ToUpper(), "REPROGRAM") || item.Title.ToLower().Contains("elt"))
+                            {
+                                totalPrice += data_price;
+                            }
+                            else
+                            {
+                                totalPrice += data_price * item.CartQuantity;
+                            }
+                        }
+                        <h3 id="cartTotal">@totalPrice.ToString("c")</h3>
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" align="right">
+                    <a class="btn btn-primary" href="/browse">Continue Shopping</a>
+                </td>
+                <td>
+                    @if (Model.Any(x => string.Equals(x.EdmoId, "REPROGRAM")))
+                    {
+                        <button id="checkout_btn" class="btn btn-gold" disabled>Checkout</button>
+                    }
+                    else
+                    {
+                        <button id="checkout_btn" class="btn btn-gold">Checkout</button>
+                    }
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+}
+else
+{
+    <div>Your cart is empty.</div>
+}
+
+@Html.Partial("ELTFormModal", new ELTOptionModel())
+
+<script>
+    $("#checkout_btn").click(function () {
+        location.href = "/checkout";
+
+        //if ($("input[type='checkbox'][name='IsELT']").is(':checked')) {
+        //    location.href = "/checkout/eltform";
+        //}
+        //else {
+        //    location.href = "/checkout";
+        //}
+    })
+</script>

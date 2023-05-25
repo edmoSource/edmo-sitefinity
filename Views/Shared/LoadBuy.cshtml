@@ -1,0 +1,177 @@
+﻿@model SitefinityWebApp.Areas.Products.Models.ProductDetailModel
+
+@using Telerik.Sitefinity.Frontend.Mvc.Helpers
+@using Newtonsoft.Json
+@using SitefinityWebApp.Areas.EdmoApi.Models
+@{
+    EdmoProductUpdateResponse.Part part = null;
+    int multiple = 1;
+    int minOrderQty = 1;
+    try
+    {
+        part = JsonConvert.DeserializeObject<EdmoProductUpdateResponse.Part>(Model.PartJson);
+        if (part != null)
+        {
+            minOrderQty = part.minordqty;
+
+            if (part.multiplesOnly)
+            {
+                multiple = minOrderQty;
+            }
+        }
+    }
+    catch
+    {
+    }
+}
+<section class="product-purchase" @if (Model.NotOrderable) { <text> style="display:none;" </text> }>
+    <div class="form-wrapper add-item-form_wrapper">
+        <div class="add-item-form">
+            @if (string.Equals(Model.EdmoId.ToUpper(), "REPROGRAM"))
+            {
+                <div class="product-amount">
+                    <div class="product-amount product-qty" tabindex="0">
+                        <div class="input input-number undefined input-required valid">
+                            <label for="quantity" class="">
+                                <span class="input-number_label">
+                                    @(part==null? "EA" : " / " + part.unitOfMeasure)
+                                </span>
+                            </label>
+                            <div class="input-wrapper">
+                                <input id="quantity" name="quantity" type="text" placeholder="" disabled value="1">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button id="AddToCartBtn" class="btn icon-btn btn-gold icon-l small" data-id="@Model.Id" type="button" onclick="AddToCartForELT('@Model.Id')" @if (Model.CartQuantity > 0) { <text> disabled</text>}>
+                    <span class="edmo-icon edmo-icon-cartPlus undefined"><svg aria-hidden="false" focusable="false" data-prefix="fal" data-icon="cart-plus" class="svg-inline--fa fa-cart-plus fa-w-18 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" aria-label="Add to Cart"><path fill="currentColor" d="M551.991 64H129.28l-8.329-44.423C118.822 8.226 108.911 0 97.362 0H12C5.373 0 0 5.373 0 12v8c0 6.627 5.373 12 12 12h78.72l69.927 372.946C150.305 416.314 144 431.42 144 448c0 35.346 28.654 64 64 64s64-28.654 64-64a63.681 63.681 0 0 0-8.583-32h145.167a63.681 63.681 0 0 0-8.583 32c0 35.346 28.654 64 64 64 35.346 0 64-28.654 64-64 0-17.993-7.435-34.24-19.388-45.868C506.022 391.891 496.76 384 485.328 384H189.28l-12-64h331.381c11.368 0 21.177-7.976 23.496-19.105l43.331-208C578.592 77.991 567.215 64 551.991 64zM464 416c17.645 0 32 14.355 32 32s-14.355 32-32 32-32-14.355-32-32 14.355-32 32-32zm-256 0c17.645 0 32 14.355 32 32s-14.355 32-32 32-32-14.355-32-32 14.355-32 32-32zm294.156-128H171.28l-36-192h406.876l-40 192zM272 196v-8c0-6.627 5.373-12 12-12h36v-36c0-6.627 5.373-12 12-12h8c6.627 0 12 5.373 12 12v36h36c6.627 0 12 5.373 12 12v8c0 6.627-5.373 12-12 12h-36v36c0 6.627-5.373 12-12 12h-8c-6.627 0-12-5.373-12-12v-36h-36c-6.627 0-12-5.373-12-12z"></path></svg></span>
+                    <span>Add to Cart</span>
+                </button>
+            }
+            else
+            {
+                <div class="product-amount">
+                    <div class="product-amount product-qty" tabindex="0">
+                        <div class="input input-number undefined input-required valid">
+                            <div class="loader undefined enable-background small false" aria-label="Loading"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 100 100"><path class="loader_circle" d="M18.1,50h-3c0-19.2,15.6-34.9,34.9-34.9v3C32.4,18.1,18.1,32.4,18.1,50z"><animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="1s" repeatCount="indefinite"></animateTransform></path><g><g><polygon class="loader_airplane" points="37.9,65.3 57,68.7 57.7,64.5 49.1,57.5 38.6,61.2"></polygon><polygon class="loader_airplane" points="32.9,51.9 50.6,47.2 65.6,57.1 69.5,54.4 54.5,25.1 30.5,48.1"></polygon><polygon class="loader_airplane" points="55.8,10.3 41.6,89.4 43.9,89.7 58.2,10.6"></polygon></g></g></svg></div>
+                            
+                            <div class="input-wrapper">
+                                <label for="quantity" class="">
+                                    <span class="input-number_label">
+                                        @(part==null? "EA" : " / " + part.unitOfMeasure)
+                                    </span>
+                                    <div class="increment_buttons">
+                                        <button name="quantity" type="button" class="js-increase-quantity"><span class="edmo-icon edmo-icon-up undefined"><svg aria-hidden="false" focusable="false" data-prefix="far" data-icon="chevron-up" class="svg-inline--fa fa-chevron-up fa-w-14 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" aria-label="Add 1"><path fill="currentColor" d="M6.101 359.293L25.9 379.092c4.686 4.686 12.284 4.686 16.971 0L224 198.393l181.13 180.698c4.686 4.686 12.284 4.686 16.971 0l19.799-19.799c4.686-4.686 4.686-12.284 0-16.971L232.485 132.908c-4.686-4.686-12.284-4.686-16.971 0L6.101 342.322c-4.687 4.687-4.687 12.285 0 16.971z"></path></svg></span></button>
+                                        <button name="quantity" type="button" class="js-decrease-quantity"><span class="edmo-icon edmo-icon-down undefined"><svg aria-hidden="false" focusable="false" data-prefix="far" data-icon="chevron-down" class="svg-inline--fa fa-chevron-down fa-w-14 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" aria-label="Remove 1"><path fill="currentColor" d="M441.9 167.3l-19.8-19.8c-4.7-4.7-12.3-4.7-17 0L224 328.2 42.9 147.5c-4.7-4.7-12.3-4.7-17 0L6.1 167.3c-4.7 4.7-4.7 12.3 0 17l209.4 209.4c4.7 4.7 12.3 4.7 17 0l209.4-209.4c4.7-4.7 4.7-12.3 0-17z"></path></svg></span></button>
+                                    </div> <span id="showQuantityError" class="edmo-icon edmo-icon-error hide"><svg aria-hidden="false" focusable="false" data-prefix="fal" data-icon="exclamation-triangle" class="svg-inline--fa fa-exclamation-triangle fa-w-18 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" aria-label="undefined"><path fill="currentColor" d="M270.2 160h35.5c3.4 0 6.1 2.8 6 6.2l-7.5 196c-.1 3.2-2.8 5.8-6 5.8h-20.5c-3.2 0-5.9-2.5-6-5.8l-7.5-196c-.1-3.4 2.6-6.2 6-6.2zM288 388c-15.5 0-28 12.5-28 28s12.5 28 28 28 28-12.5 28-28-12.5-28-28-28zm281.5 52L329.6 24c-18.4-32-64.7-32-83.2 0L6.5 440c-18.4 31.9 4.6 72 41.6 72H528c36.8 0 60-40 41.5-72zM528 480H48c-12.3 0-20-13.3-13.9-24l240-416c6.1-10.6 21.6-10.7 27.7 0l240 416c6.2 10.6-1.5 24-13.8 24z"></path></svg></span>
+                                </label>
+                                <input id="quantity" name="quantity" type="text" placeholder="" required="" value="@(Model.CartQuantity>0 ? Model.CartQuantity: minOrderQty)">
+                            </div>
+                            <div class="error"></div>
+                            <div id="showQuantityErrorMessage" class="error">You must order in multiples of @minOrderQty</div>
+                        </div>
+                    </div>
+                </div>
+                <button id="AddToCartBtn" class="btn icon-btn btn-gold icon-l small" data-id="@Model.Id" type="button" onclick="AddToCart('@Model.Id')">
+                    <span class="edmo-icon edmo-icon-cartPlus undefined"><svg aria-hidden="false" focusable="false" data-prefix="fal" data-icon="cart-plus" class="svg-inline--fa fa-cart-plus fa-w-18 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" aria-label="Add to Cart"><path fill="currentColor" d="M551.991 64H129.28l-8.329-44.423C118.822 8.226 108.911 0 97.362 0H12C5.373 0 0 5.373 0 12v8c0 6.627 5.373 12 12 12h78.72l69.927 372.946C150.305 416.314 144 431.42 144 448c0 35.346 28.654 64 64 64s64-28.654 64-64a63.681 63.681 0 0 0-8.583-32h145.167a63.681 63.681 0 0 0-8.583 32c0 35.346 28.654 64 64 64 35.346 0 64-28.654 64-64 0-17.993-7.435-34.24-19.388-45.868C506.022 391.891 496.76 384 485.328 384H189.28l-12-64h331.381c11.368 0 21.177-7.976 23.496-19.105l43.331-208C578.592 77.991 567.215 64 551.991 64zM464 416c17.645 0 32 14.355 32 32s-14.355 32-32 32-32-14.355-32-32 14.355-32 32-32zm-256 0c17.645 0 32 14.355 32 32s-14.355 32-32 32-32-14.355-32-32 14.355-32 32-32zm294.156-128H171.28l-36-192h406.876l-40 192zM272 196v-8c0-6.627 5.373-12 12-12h36v-36c0-6.627 5.373-12 12-12h8c6.627 0 12 5.373 12 12v36h36c6.627 0 12 5.373 12 12v8c0 6.627-5.373 12-12 12h-36v36c0 6.627-5.373 12-12 12h-8c-6.627 0-12-5.373-12-12v-36h-36c-6.627 0-12-5.373-12-12z"></path></svg></span>
+                    @if (Model.CartQuantity > 0)
+                    {
+                        <span>Update Cart</span>
+                    }
+                    else
+                    {
+                        <span>Add to Cart</span>
+                    }
+                </button>
+            }
+
+            @if (Model.CartQuantity > 0)
+            {
+
+            }
+            else
+            {
+                if (Model.IsFavorite)
+                {
+                    <button class="favorite-button js-is-favorite" type="button" data-id="@Model.Id" onclick="RemoveFromFavorites('@Model.Id')" @if (!Model.IsFavorite) { <text> style="display:none;" </text> }>
+                        <span class="contents-wrapper">
+                            <span class="edmo-icon edmo-icon-heart">
+                                <svg role="img" aria-hidden="true" focusable="false">
+                                    <title>Remove from Saved for Later</title>
+                                    <use xlink:href="/ResourcePackages/Edmo/assets/dist/sprites/symbol-defs.svg#icon-bookmark1"></use>
+                                </svg>
+                            </span>
+                        </span>
+                    </button>
+                }
+                else
+                {
+                    <button class="favorite-button js-is-not-favorite" type="button" data-id="@Model.Id" onclick="AddToFavorites('@Model.Id')">
+                        <span class="contents-wrapper">
+                            <span class="edmo-icon edmo-icon-heart">
+                                <svg role="img" aria-hidden="true" focusable="false">
+                                    <title>Save for Later</title>
+                                    <use xlink:href="/ResourcePackages/Edmo/assets/dist/sprites/symbol-defs.svg#icon-bookmark"></use>
+                                </svg>
+                            </span>
+                        </span>
+                    </button>
+                }
+            }
+        </div>
+    </div>
+    @if (part != null && part.piecePart)
+    {
+        <section class="add-piece-form">
+            <p>
+                <span style="color: #f5b200; margin-right:6px;">
+                    <svg role="img" aria-hidden="true" focusable="false" style="width:18px; height:18px;">
+                        <title>Remove from Saved for Later</title>
+                        <use xlink:href="/ResourcePackages/Edmo/assets/dist/sprites/symbol-defs.svg#icon-info-circle"></use>
+                    </svg>
+                </span>
+                <span style="font-size: 0.875rem;">Piece parts are available by calling us at (800) 235-3300.</span>
+            </p>
+        </section>
+    }
+</section>
+
+<script>
+    $(function () {
+        $(".js-increase-quantity").on("click", function () {
+            var qty = $("#quantity").val() * 1;
+            $("#quantity").val(qty + @multiple);
+        })
+
+        $(".js-decrease-quantity").on("click", function () {
+            var qty = $("#quantity").val() * 1;
+            if (qty > @multiple)
+                $("#quantity").val(qty - @multiple);
+        })
+
+        $('#quantity').keypress(function (event) {
+            if (isNaN(String.fromCharCode(event.which))) {
+                event.preventDefault();
+                return;
+            }
+        });
+
+        $('#quantity').keyup(function (event) {
+            var multiple =@multiple;
+            $("#showQuantityError").addClass("hide");
+
+            $("#showQuantityErrorMessage").css("opacity", 0);
+            $("#AddToCartBtn").prop("disabled", "")
+            if (multiple>1)
+            {
+                var qty = $("#quantity").val() * 1;
+                if (qty < multiple || qty%multiple!=0) {
+                    $("#showQuantityError").removeClass("hide");
+
+                    $("#showQuantityErrorMessage").css("opacity", 1);
+                    $("#AddToCartBtn").prop("disabled", "disabled")
+                }
+            }
+        });
+    })
+</script>
