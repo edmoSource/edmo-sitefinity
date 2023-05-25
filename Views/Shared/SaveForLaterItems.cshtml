@@ -4,7 +4,6 @@
     var savedItems = Model.Where(p => p.IsFavorite && p.CartQuantity == 0).ToList();
 }
 
-
 @if (savedItems.Count > 0)
 {
     <div class="cart-table_edit  js-check-save">
